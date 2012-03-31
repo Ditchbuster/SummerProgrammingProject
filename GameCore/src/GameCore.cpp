@@ -3,13 +3,14 @@
 // Author      : Chris P
 // Version     :
 // Copyright   : GNU
-// Description : Hello World in C++, Ansi-style
+// Description : The main server/core game mechanics
 //============================================================================
 
 #include <iostream>
 using namespace std;
 
 int main() {
-	cout << "Hello World!!!" << endl; // prints Hello World!!!
+	cout << "Main THread Start" << endl; // prints Hello World!!!
+
 	return 0;
 }
