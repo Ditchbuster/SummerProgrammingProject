@@ -10,8 +10,8 @@ import java.io.*;
  *handles each client and related info
  */
 public class ClientHandler extends Thread{
-	
-	Socket clientSocket = null;
+	static GameCore GCserver=null; //the parent thread. Allows clients to request actions
+	Socket clientSocket = null;	//this clients socket
 	
 	ClientHandler() {
 	}
@@ -20,21 +20,24 @@ public class ClientHandler extends Thread{
 		System.out.println(this);
 		start();
 	}
-	ClientHandler(Socket accept) {
+	ClientHandler(Socket accept,GameCore parent) {
 		// TODO Auto-generated constructor stub
 		clientSocket = accept;
+		GCserver=parent;
 		start();
 	}
+	
 	public void run() {
 		//Display info about this particular thread
 		System.out.println(Thread.currentThread().getName());
 		 try {
 	           clientinterface();
 	        } catch (IOException e) {
-	            System.err.println("Accept failed.");
+	            System.err.println("ClientHandler failed.");
 	            System.exit(1);
 	        }
 	}
+	
 	void clientinterface() throws IOException{
 		PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
         BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -49,7 +52,8 @@ public class ClientHandler extends Thread{
 	System.out.println(int1);
 	int2 = in.readLine();
 	System.out.println("*"+int2);
- 
+	if(int1=="shutdown"||int2=="shutdown")
+		GCserver.shutdown();
  
 	try
 	{  
