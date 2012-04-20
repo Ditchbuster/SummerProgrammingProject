@@ -4,6 +4,7 @@
 package gameclient;
 import java.io.*;
 import javax.swing.JFrame;
+import gameProto.*;
 /**
  * @author Chris
  *
@@ -25,7 +26,7 @@ public class GameClient extends JFrame {
         GameWorld world = new GameWorld();
         add(world);
 
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
         setSize(world.getViewWidth() + OFFSET,
                 world.getViewHeight() + 2*OFFSET);
         setLocationRelativeTo(null);

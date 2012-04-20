@@ -3,6 +3,8 @@
  */
 package gameclient;
 
+import gameProto.WorldProtos.World;
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -65,8 +67,11 @@ public class GameWorld extends JPanel{
 		String in=null;
 		myCH.out.println('0');
 		System.out.println("Sent command");
+		World worldData = null;
+		
 		try {
-			in=myCH.in.readLine();
+			worldData = World.parseDelimitedFrom(myCH.socket.getInputStream());
+			//in=myCH.in.readLine();
 			System.out.println("World received:"+in);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -74,7 +79,7 @@ public class GameWorld extends JPanel{
 		}
 		for(int i=0;i<21;i++){
 			for(int j=0;j<21;j++){
-				world[i][j]=new WorldCube(in.charAt((i*21)+j)%2);
+				world[i][j]=new WorldCube(worldData.getChunks(0).getNodes(i+j).getType());
 			}
 		}
 		System.out.println("World loaded");
