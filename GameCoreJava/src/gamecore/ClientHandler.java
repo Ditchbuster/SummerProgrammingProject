@@ -12,6 +12,10 @@ import java.io.*;
 public class ClientHandler extends Thread{
 	static GameCore GCserver=null; //the parent thread. Allows clients to request actions
 	Socket clientSocket = null;	//this clients socket
+	boolean alive = false;
+	PrintWriter out = null;
+	BufferedReader in = null;
+	
 	
 	ClientHandler() {
 	}
@@ -30,25 +34,35 @@ public class ClientHandler extends Thread{
 	public void run() {
 		//Display info about this particular thread
 		System.out.println(Thread.currentThread().getName());
+		alive=true;
 		 try {
 	           clientinterface();
 	        } catch (IOException e) {
 	            System.err.println("ClientHandler failed.");
-	            System.exit(1);
+	            //System.exit(1);
 	        }
 	}
 	
 	void clientinterface() throws IOException{
-		PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-        BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+		out = new PrintWriter(clientSocket.getOutputStream(), true);
+        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         String int1,int2;
         int num1=0,num2=0;
  
 	//out.println("server: Connected");//uncomment for debug
  
+        while(alive){
+        	switch(in.readLine().charAt(0)){
+        	case '0':{//send world
+        		out.println(sendChunk(0));
+        	}
+        	
+        	}
+        	
+        	
+        }
  
- 
-	int1 = in.readLine();
+	/*int1 = in.readLine();
 	System.out.println(int1);
 	int2 = in.readLine();
 	System.out.println("*"+int2);
@@ -67,7 +81,7 @@ public class ClientHandler extends Thread{
         }
         System.out.println("="+num1*num2);
         out.println(String.valueOf(num1*num2));
- 
+ */
  
  
         out.close();
@@ -75,5 +89,17 @@ public class ClientHandler extends Thread{
         clientSocket.close();
 		
 	}
-
+	private String sendChunk(int chunkId) {
+		// TODO Auto-generated method stub
+		String send = new String();
+		for(int i=0;i<21;i++){
+			for(int j=0;j<21;j++){
+				send+=String.valueOf(GCserver.getWorld()[i][j].getType());
+				System.out.print(String.valueOf(GCserver.getWorld()[i][j].getType()));
+			}
+		}
+		System.out.println("World:"+send);
+		return(send);
+	}
+	
 }

@@ -2,6 +2,8 @@
  * 
  */
 package gamecore;
+
+
 import java.net.*;
 import java.util.ArrayList;
 import java.io.*;
@@ -20,7 +22,8 @@ public class GameCore {
 	
 	GameCore(int port){
 		System.out.println("Hello World!");
-		world = new WorldNode[10][10];
+		generateNewWorld();
+		
         try {
             serverSocket =  new ServerSocket(port);
         } catch (IOException e) {
@@ -29,7 +32,7 @@ public class GameCore {
         }
         //GCOpen();
      }
-	public void GCOpen(){
+	public void GCOpen(){ //listen for clients
         try {
         	for(int i=0;i<5;i++)
         		myCh.add(new ClientHandler(serverSocket.accept(),this));
@@ -47,15 +50,12 @@ public class GameCore {
 		myGC.GCOpen();
 	}
 	
-	public void shutdown(){
-		 try {
+	public void shutdown(){			//dont wait for threads. shut them down.
+		
 	    	   for(int i =0; i<myCh.size();i++){
-	    		   myCh.get(i).join();
+	    		   myCh.get(i).stop(); //TODO change stop to inturrupt but requires CH to handle that properly
 	    	   }
-		} catch (InterruptedException e) {
-			 System.err.println("Join effed up");
-	         System.exit(1);
-		}
+		
 	        try {
 				serverSocket.close();
 			} catch (IOException e) {
@@ -63,4 +63,19 @@ public class GameCore {
 			}
 		
 	}
+	public void generateNewWorld() { //generate a new world.
+		// TODO Auto-generated method stub
+		world = new WorldNode[21][21];
+		for(int i=0;i<21;i++){
+			for(int j=0;j<21;j++){
+				world[i][j]=new WorldNode((i+j)%2);
+				System.out.print(String.valueOf(world[i][j].getType()));
+			}
+		}
+		System.out.println("World Generated");
+	}
+	public WorldNode[][] getWorld() {
+		return world;
+	}
+	
 }

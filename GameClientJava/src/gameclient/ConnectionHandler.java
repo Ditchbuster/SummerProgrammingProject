@@ -26,11 +26,17 @@ public class ConnectionHandler {
 
 
 
-	public ConnectionHandler(Socket socket, PrintWriter out, BufferedReader in) {
+	public ConnectionHandler(Socket socket) {
 		super();
 		this.socket = socket;
-		this.out = out;
-		this.in = in;
+		try {
+			out = new PrintWriter(socket.getOutputStream(), true);
+			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
 	}
 
 

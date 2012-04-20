@@ -10,6 +10,11 @@ package gamecore;
 public class WorldNode {
 	private int type=0;
 
+	public WorldNode(int type) {
+		// TODO Auto-generated constructor stub
+		this.type=type;
+	}
+
 	/**
 	 * @return the type
 	 */

@@ -6,7 +6,10 @@ package gameclient;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.io.IOException;
+import java.net.Socket;
 import java.net.URL;
+import java.net.UnknownHostException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
@@ -30,8 +33,19 @@ public class GameWorld extends JPanel{
 	public GameWorld() {
 		super();
 		initWorld=initConn=initImages=false;
-		generateNewWorld();
+		//generateNewWorld();
+		try {
+			myCH=new ConnectionHandler(new Socket("127.0.0.1", 1234));
+			initConn=true;
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		loadImages();
+		loadWorld();
 	}
 
 	public void generateNewWorld() { //generate a new world. this will eventually be done by the server GameCore and this will use loadWorld()
@@ -45,9 +59,27 @@ public class GameWorld extends JPanel{
 		
 		initWorld=true;
 	}
-	private void loadWorld(){
-		if(initConn)
+	public void loadWorld(){
+		if(initConn){
+		world = new WorldCube[(2*view)+1][(2*view)+1];	
+		String in=null;
+		myCH.out.println('0');
+		System.out.println("Sent command");
+		try {
+			in=myCH.in.readLine();
+			System.out.println("World received:"+in);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		for(int i=0;i<21;i++){
+			for(int j=0;j<21;j++){
+				world[i][j]=new WorldCube(in.charAt((i*21)+j)%2);
+			}
+		}
+		System.out.println("World loaded");
 		initWorld=true;
+		}
 	}
 	
 	private void loadImages(){
@@ -75,7 +107,7 @@ public class GameWorld extends JPanel{
 			for(int j=0;j<(2*view)+1;j++){
 				g.drawImage(images[world[i][j].getType()], i*tileSize+offset, j*tileSize+offset, this); //should probably check the type for out of bounds or something
 				
-				if(j==view+1&&i==view+1){
+				if(j==view&&i==view){
 					g.drawImage(images[2], i*tileSize+offset, j*tileSize+offset, this); //should probably check the type for out of bounds or something
 				}
 				
@@ -98,7 +130,7 @@ public class GameWorld extends JPanel{
 	}
 
 	public boolean isInitilized() {
-		return (initWorld&&initConn);
+		return (initWorld&&initConn&&initImages);
 	}
 	 @Override
 	    public void paint(Graphics g) {
