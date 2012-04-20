@@ -1,0 +1,23 @@
+package protocol;
+
+option java_package = "gameProto";
+option java_outer_classname = "WorldProtos";
+
+message Chunk {
+  required int32 id = 1;
+  optional int32 x = 2;
+  optional int32 y = 3;
+
+
+  message Node {
+    required int32 type = 1;
+    optional int32 x = 2;
+  	optional int32 y = 3;
+  }
+
+  repeated Node nodes = 4;
+}
+
+message World {
+  repeated Chunk Chunks = 1;
+}
