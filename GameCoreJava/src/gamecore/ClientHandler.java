@@ -3,6 +3,11 @@
  */
 package gamecore;
 
+
+
+import gameProto.WorldProtos.Chunk.Node;
+import gameProto.WorldProtos.*;
+
 import java.net.*;
 import java.io.*;
 /**
@@ -54,7 +59,17 @@ public class ClientHandler extends Thread{
         while(alive){
         	switch(in.readLine().charAt(0)){
         	case '0':{//send world
-        		out.println(sendChunk(0));
+
+        		World.Builder worldData = World.newBuilder();
+        		Chunk.Builder chunk = Chunk.newBuilder().setId(0);
+        		for(int i = 0; i<21;i++){
+        			for(int j = 0;j<21;j++){
+        				chunk.addNodes(Node.newBuilder().setType(GCserver.getWorld()[i][j].getType()).setX(i).setY(j));
+        			}
+        			
+        		}
+        		worldData.addChunks(chunk).build().writeDelimitedTo(clientSocket.getOutputStream());
+        		
         	}
         	
         	}
@@ -91,15 +106,8 @@ public class ClientHandler extends Thread{
 	}
 	private String sendChunk(int chunkId) {
 		// TODO Auto-generated method stub
-		String send = new String();
-		for(int i=0;i<21;i++){
-			for(int j=0;j<21;j++){
-				send+=String.valueOf(GCserver.getWorld()[i][j].getType());
-				System.out.print(String.valueOf(GCserver.getWorld()[i][j].getType()));
-			}
-		}
-		System.out.println("World:"+send);
-		return(send);
+		World.Builder worldData = World.newBuilder();
+		return(" ");
 	}
 	
 }
