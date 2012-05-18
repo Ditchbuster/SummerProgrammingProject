@@ -20,19 +20,20 @@ import javax.swing.JPanel;
  * @author Chris
  *
  */
-public class GameWorld extends JPanel{
+public class GameWorld{
 	private ConnectionHandler myCH=null; //the interface to the server
 	private char view=10; //how far north south east west of character to display thus width and height = (2* view)+1
 	private WorldCube[][] world=null;
 	private boolean initWorld,initConn,initImages; //flags showing if it is initialized
 	
 	/*Graphics Globals*/
-	private int offset=7;
-	private int tileSize=30; //size of a worldcube in pixels
-	private Image[] images=null; //holds all the images for different things that can be drawn - eventually make into own class probably
 	
 	
-	public GameWorld() {
+	public GameWorld(){
+		generateNewWorld();
+		
+	}
+	/*public GameWorld() {
 		super();
 		initWorld=initConn=initImages=false;
 		//generateNewWorld();
@@ -48,7 +49,7 @@ public class GameWorld extends JPanel{
 		}
 		loadImages();
 		loadWorld();
-	}
+	}*/
 
 	public void generateNewWorld() { //generate a new world. this will eventually be done by the server GameCore and this will use loadWorld()
 		// TODO Auto-generated method stub
@@ -87,61 +88,14 @@ public class GameWorld extends JPanel{
 		}
 	}
 	
-	private void loadImages(){
-		 	images= new Image[3];
-			URL loc = this.getClass().getResource("type0.png");
-	        ImageIcon iia = new ImageIcon(loc);
-	        images[0] = iia.getImage();
-	        loc = this.getClass().getResource("type1.png");
-	        iia = new ImageIcon(loc);
-	        images[1] = iia.getImage();
-	        loc = this.getClass().getResource("type2.png");
-	        iia = new ImageIcon(loc);
-	        images[2] = iia.getImage();
-	        
-		initImages=true;
-	}
-	private void paintWorld(Graphics g) {
-		// TODO Auto-generated method stub
-		int x,y;
-		x=y=offset;
-		g.setColor(new Color(250, 240, 170));
-        g.fillRect(0, 0, this.getWidth(), this.getHeight());
-        
-        for(int i=0;i<(2*view)+1;i++){
-			for(int j=0;j<(2*view)+1;j++){
-				g.drawImage(images[world[i][j].getType()], i*tileSize+offset, j*tileSize+offset, this); //should probably check the type for out of bounds or something
-				
-				if(j==view&&i==view){
-					g.drawImage(images[2], i*tileSize+offset, j*tileSize+offset, this); //should probably check the type for out of bounds or something
-				}
-				
-			}
-		}
-	}
-	
-	
-	
-	
-
-	public int getViewWidth() {
-		// TODO Auto-generated method stub
-		return ((2*view)+1)*tileSize;
-	}
-
-	public int getViewHeight() {
-		// TODO Auto-generated method stub
-		return ((2*view)+1)*tileSize;
-	}
 
 	public boolean isInitilized() {
 		return (initWorld&&initConn&&initImages);
 	}
-	 @Override
-	    public void paint(Graphics g) {
-	        super.paint(g);
-	        paintWorld(g);
-	    }
-
+	public int getCubeType(int x, int y, int z){
+		return(world[x][y].getType());
+		
+	}
+	
 	
 }

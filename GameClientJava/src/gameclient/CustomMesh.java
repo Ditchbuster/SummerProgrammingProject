@@ -15,6 +15,7 @@ import java.util.*;
 import java.util.Map.Entry;
  
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
@@ -148,6 +149,14 @@ public class CustomMesh extends Mesh {
     public void setPosition(float x, float y, float z) {
         setFloatValue(Type.Position, x, y, z);
     }
+    
+    public void setTexCoord(float x, float y) {
+        setFloatValue(Type.TexCoord, x, y);
+    }
+    
+    public void setTexCoord(Vector2f in){
+    	setTexCoord(in.x,in.y);
+    }
  
     public void setColor(ColorRGBA color) {
         setFloatValue(Type.Color, color.r, color.g, color.b, color.a);
@@ -232,6 +241,7 @@ public class CustomMesh extends Mesh {
                 mapping.put(Type.Normal, new TypeMeta(3, FloatBuffer.class));
                 mapping.put(Type.Size, new TypeMeta(1, FloatBuffer.class));
                 mapping.put(Type.Color, new TypeMeta(4, FloatBuffer.class));
+                mapping.put(Type.TexCoord ,new TypeMeta(2, FloatBuffer.class));
                 // TODO: Complete with other Types! OR Alternatively add this data and functionality in the Type Enum!!
             }
             return mapping.get(type);
