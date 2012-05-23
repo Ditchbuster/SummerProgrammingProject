@@ -23,7 +23,7 @@ import javax.swing.JPanel;
 public class GameWorld{
 	private ConnectionHandler myCH=null; //the interface to the server
 	private char view=10; //how far north south east west of character to display thus width and height = (2* view)+1
-	private WorldCube[][] world=null;
+	private WorldCube world=null; //for now only a single cube of blocks
 	private boolean initWorld,initConn,initImages; //flags showing if it is initialized
 	
 	/*Graphics Globals*/
@@ -53,17 +53,19 @@ public class GameWorld{
 
 	public void generateNewWorld() { //generate a new world. this will eventually be done by the server GameCore and this will use loadWorld()
 		// TODO Auto-generated method stub
-		world = new WorldCube[(2*view)+1][(2*view)+1];
-		for(int i=0;i<(2*view)+1;i++){
-			for(int j=0;j<(2*view)+1;j++){
-				world[i][j]=new WorldCube((i+j)%2);
+		world = new WorldCube(0);
+		for(int i=0;i<(WorldCube.size);i++){
+			for(int j=0;j<(WorldCube.size);j++){
+				for(int k=0;k<(WorldCube.size);k++){
+					world.setType(i, j, k, (i+j+k)%2);
+				}
 			}
 		}
 		
 		initWorld=true;
 	}
 	public void loadWorld(){
-		if(initConn){
+		/*if(initConn){
 		world = new WorldCube[(2*view)+1][(2*view)+1];	
 		String in=null;
 		myCH.out.println('0');
@@ -85,7 +87,7 @@ public class GameWorld{
 		}
 		System.out.println("World loaded");
 		initWorld=true;
-		}
+		}*/
 	}
 	
 
@@ -93,7 +95,7 @@ public class GameWorld{
 		return (initWorld&&initConn&&initImages);
 	}
 	public int getCubeType(int x, int y, int z){
-		return(world[x][y].getType());
+		return(world.getBlockType(x,y,z));
 		
 	}
 	
