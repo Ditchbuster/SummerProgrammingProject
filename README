@@ -2,4 +2,4 @@
 README:Ditchbuster
 This is the start of a fun project for the summer which hopes to build a game that mixes some elements of minecraft and dwarf fortress
 
-The Images folder has the images required for the game client. They need to be copied into your output folder when you compile. For eclipse this is by default the /bin/gameClient folder. Copy everything in the Images folder not the folder itself.
+Currently the game client needs the jMonkeyEngine to run. Instuctions are on the jME3 site for using in eclipse.
