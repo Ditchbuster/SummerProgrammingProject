@@ -2,6 +2,8 @@ package gameclient;
 
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CompoundCollisionShape;
+import com.jme3.bullet.collision.shapes.PlaneCollisionShape;
+import com.jme3.math.Plane;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 
@@ -11,17 +13,17 @@ import com.jme3.math.Vector3f;
  */
 public class WorldCube {
 	public static final int size = 5; // size of the cube in blocks
-
+	public static final int width = 3; // world unit size of the block
 	private static final Vector3f[] vertices = new Vector3f[8];
 	{
 		vertices[0] = new Vector3f(0, 0, 0);
-		vertices[1] = new Vector3f(3, 0, 0);
-		vertices[2] = new Vector3f(0, 3, 0);
-		vertices[3] = new Vector3f(3, 3, 0);
-		vertices[4] = new Vector3f(0, 3, 3);
-		vertices[5] = new Vector3f(3, 3, 3);
-		vertices[6] = new Vector3f(0, 0, 3);
-		vertices[7] = new Vector3f(3, 0, 3);
+		vertices[1] = new Vector3f(width, 0, 0);
+		vertices[2] = new Vector3f(0, width, 0);
+		vertices[3] = new Vector3f(width, width, 0);
+		vertices[4] = new Vector3f(0, width, width);
+		vertices[5] = new Vector3f(width, width, width);
+		vertices[6] = new Vector3f(0, 0, width);
+		vertices[7] = new Vector3f(width, 0, width);
 	}
 	// int[] indexes = { 2, 3, 0, 3, 1, 0, 5, 3, 2, 4, 5, 2, 5, 1, 3, 4, 2, 0, 7, 1, 5, 6, 4, 0, 6, 7, 5, 4, 6, 5, 7, 6, 0, 7, 0, 1 };
 	private static final int[] top = {4, 5, 2, 5, 3, 2};
@@ -79,6 +81,9 @@ public class WorldCube {
 	public int getBlockType(int x, int y, int z) {
 		return blocks[x][y][z];
 	}
+	public void getBlockInd(Vector3f hit) {
+		
+	}
 
 	public void setType(int x, int y, int z, int type) {
 		blocks[x][y][z] = type;
@@ -91,36 +96,45 @@ public class WorldCube {
 
 		return (geomShape);
 	}
-	public void generateMesh() {// TODO: bulk transfer the boundary chunks blocks
+	public void generateMesh() {// TODO: bulk transfer the boundary chunks blocks, optimize physics (panels, only for areas around player)
 		myMesh.setDynamic();
 		Vector3f box_size = new Vector3f(1.5f, 1.5f, 1.5f); // half size of box also used to offset box
 		int temptype = 0;
+		boolean addedFace = false;  // flag to see if it added a face for the block. if not dont add physics box
 		for (int x = 0; x < size; x++) {
 			for (int y = 0; y < size; y++) {
 				for (int z = 0; z < size; z++) { // this z is up
 					if (blocks[x][y][z] == 0) {
-						System.out.println("Block: "+x+" "+y+" "+z);
-						temptype=1; //default is to draw
-						geomShape.addChildShape(new BoxCollisionShape(box_size), box_size.add(x * 3, z * 3, y * 3)); // adding physics shape
+						addedFace=false;
+						System.out.println("Block: " + x + " " + y + " " + z);
+						temptype = 1; // default is to draw
+						//geomShape.addChildShape(new BoxCollisionShape(box_size), box_size.add(x * width, z * width, y * width)); // adding physics shape - change to
+						// adding panels
 						if (z + 1 == size) { // see if i need to check next cube
 							if (CubeTop == null) { // if none there
-								temptype = 1;//draw
+								temptype = 1;// draw
 							} else { // else see if cube there
 								temptype = CubeTop.getBlockType(x, y, 0);
-								
+
 							}
 						} else if (blocks[x][y][z + 1] == 0) {// or if not on boundary check next cube;
-							temptype = 0;//dont draw
+							temptype = 0;// dont draw
 						} else {
-							temptype=1;
+							temptype = 1;
 						}
 						if (temptype != 0) {
 							for (int i = 0; i < 6; i++) {
 								myMesh.setTexCoord(BlacktexCoord[Ttop[i]]);
-								myMesh.addVertex(vertices[top[i]].add(x * 3, z * 3, y * 3));
+								myMesh.addVertex(vertices[top[i]].add(x * width, z * width, y * width));
+								addedFace=true;
 							}
+							/*
+							 * Plane tempP = new Plane();
+							 * tempP.setPlanePoints(vertices[top[0]].add(x * width, z * width, y * width), vertices[top[1]].add(x * width, z * width, y * width),
+							 * vertices[top[2]].add(x * width, z * width, y * width));
+							 * geomShape.addChildShape(new PlaneCollisionShape(tempP), vertices[top[0]].add(x * width, z * width, y * width));
+							 */
 						}
-
 						if (z == 0) { // see if i need to check next cube
 							if (CubeBot == null) { // if none there
 								temptype = 1;
@@ -130,12 +144,13 @@ public class WorldCube {
 						} else if (blocks[x][y][z - 1] == 0) {// or if not on boundary check next cube;
 							temptype = 0;
 						} else {
-							temptype=1;
+							temptype = 1;
 						}
 						if (temptype != 0) {
 							for (int i = 0; i < 6; i++) {
 								myMesh.setTexCoord(BlacktexCoord[Tbot[i]]);
-								myMesh.addVertex(vertices[bot[i]].add(x * 3, z * 3, y * 3));
+								myMesh.addVertex(vertices[bot[i]].add(x * width, z * width, y * width));
+								addedFace=true;
 							}
 						}
 
@@ -143,18 +158,18 @@ public class WorldCube {
 							if (CubeFrt == null) { // if none there
 								temptype = 1;
 							} else { // else see if cube there
-								temptype = CubeFrt.getBlockType(size-1, y, z);
+								temptype = CubeFrt.getBlockType(size - 1, y, z);
 							}
 						} else if (blocks[x - 1][y][z] == 0) {// or if not on boundary check next cube;
 							temptype = 0;
 						} else {
-							temptype=1;
+							temptype = 1;
 						}
 						if (temptype != 0) {
-							System.out.println("Front: "+x+" "+y+" "+z);
 							for (int i = 0; i < 6; i++) {
 								myMesh.setTexCoord(BlacktexCoord[Tfrt[i]]);
-								myMesh.addVertex(vertices[frt[i]].add(x * 3, z * 3, y * 3));
+								myMesh.addVertex(vertices[frt[i]].add(x * width, z * width, y * width));
+								addedFace=true;
 							}
 						}
 
@@ -167,12 +182,13 @@ public class WorldCube {
 						} else if (blocks[x + 1][y][z] == 0) {// or if not on boundary check next cube;
 							temptype = 0;
 						} else {
-							temptype=1;
+							temptype = 1;
 						}
 						if (temptype != 0) {
 							for (int i = 0; i < 6; i++) {
 								myMesh.setTexCoord(GreentexCoord[Tbck[i]]);
-								myMesh.addVertex(vertices[bck[i]].add(x * 3, z * 3, y * 3));
+								myMesh.addVertex(vertices[bck[i]].add(x * width, z * width, y * width));
+								addedFace=true;
 							}
 						}
 
@@ -185,12 +201,13 @@ public class WorldCube {
 						} else if (blocks[x][y + 1][z] == 0) {// or if not on boundary check next cube;
 							temptype = 0;
 						} else {
-							temptype=1;
+							temptype = 1;
 						}
 						if (temptype != 0) {
 							for (int i = 0; i < 6; i++) {
 								myMesh.setTexCoord(GreentexCoord[Trht[i]]);
-								myMesh.addVertex(vertices[rht[i]].add(x * 3, z * 3, y * 3));
+								myMesh.addVertex(vertices[rht[i]].add(x * width, z * width, y * width));
+								addedFace=true;
 							}
 						}
 
@@ -198,18 +215,22 @@ public class WorldCube {
 							if (CubeLft == null) { // if none there
 								temptype = 1;
 							} else { // else see if cube there
-								temptype = CubeLft.getBlockType(x, size-1, z);
+								temptype = CubeLft.getBlockType(x, size - 1, z);
 							}
 						} else if (blocks[x][y - 1][z] == 0) {// or if not on boundary check next cube;
 							temptype = 0;
 						} else {
-							temptype=1;
+							temptype = 1;
 						}
 						if (temptype != 0) {
 							for (int i = 0; i < 6; i++) {
 								myMesh.setTexCoord(GreentexCoord[Tlft[i]]);
-								myMesh.addVertex(vertices[lft[i]].add(x * 3, z * 3, y * 3));
+								myMesh.addVertex(vertices[lft[i]].add(x * width, z * width, y * width));
+								addedFace=true;
 							}
+						}
+						if(addedFace){
+							geomShape.addChildShape(new BoxCollisionShape(box_size), box_size.add(x * width, z * width, y * width));
 						}
 					}
 				}
@@ -219,7 +240,7 @@ public class WorldCube {
 		myMesh.setStatic();
 
 	}
-	public void setDebugCube() {
+	public void setDebugCube() { // create an alternating pattern
 		for (int i = 0; i < (WorldCube.size); i++) {
 			for (int j = 0; j < (WorldCube.size); j++) {
 				for (int k = 0; k < (WorldCube.size); k++) {
@@ -227,15 +248,15 @@ public class WorldCube {
 				}
 			}
 		}
-		//generateMesh();
+		// generateMesh();
 	}
-	public void setDebugFloor() {
-		
-			for (int j = 0; j < (WorldCube.size); j++) {
-				for (int k = 0; k < (WorldCube.size); k++) {
-					this.setType(j,k, 0, 0);
-				}
+	public void setDebugFloor() { // create a floor - only cubes on bottom, must be init with 1 in constructor
+
+		for (int j = 0; j < (WorldCube.size); j++) {
+			for (int k = 0; k < (WorldCube.size); k++) {
+				this.setType(j, k, 0, 0);
 			}
+		}
 	}
 
 	public WorldCube getCubeTop() {

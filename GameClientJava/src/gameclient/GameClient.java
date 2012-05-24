@@ -91,7 +91,7 @@ public class GameClient extends SimpleApplication implements ActionListener {
 		/** Set up Physics */
 		bulletAppState = new BulletAppState();
 		stateManager.attach(bulletAppState);
-		// bulletAppState.getPhysicsSpace().enableDebug(assetManager);
+		bulletAppState.getPhysicsSpace().enableDebug(assetManager);
 		viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
 		flyCam.setMoveSpeed(100);
 		setUpKeys();
@@ -115,6 +115,7 @@ public class GameClient extends SimpleApplication implements ActionListener {
 		bulletAppState.getPhysicsSpace().add(player);
 
 		Node floor = new Node("floor");
+		
 		int count = 10;
 		WorldCube[][] fl = new WorldCube[count][count];
 		for (int i = 0; i < count; i++) {
@@ -140,7 +141,7 @@ public class GameClient extends SimpleApplication implements ActionListener {
 			fl[i][j].generateMesh();	
 			Geometry geom = new Geometry("fl"+i+j, fl[i][j].getMesh());
 			geom.setMaterial(mat2);
-			geom.setLocalTranslation(i*(WorldCube.size)*3, 0, j*(WorldCube.size)*3);
+			geom.setLocalTranslation(i*(WorldCube.size)*WorldCube.width, 0, j*(WorldCube.size)*WorldCube.width);
 			floor.attachChild(geom);
 			RigidBodyControl geom_phy = new RigidBodyControl(fl[i][j].getCosShape(), 0.0f);
 			geom.addControl(geom_phy);
@@ -151,7 +152,7 @@ public class GameClient extends SimpleApplication implements ActionListener {
 		
 		
 		world = new Node("world");
-
+		world.attachChild(floor);
 		WorldCube test = new WorldCube(0);
 		WorldCube test2 = new WorldCube(0);
 		WorldCube test3 = new WorldCube(0);
@@ -175,12 +176,12 @@ public class GameClient extends SimpleApplication implements ActionListener {
 		geom.setMaterial(mat);
 		geom2.setMaterial(mat);
 		geom3.setMaterial(mat);
-		geom2.setLocalTranslation(0, (WorldCube.size + 1) * 3, 0);
-		geom3.setLocalTranslation(0, 0, (WorldCube.size + 1) * 3);
+		geom2.setLocalTranslation(0, (WorldCube.size) * WorldCube.width, 0);
+		geom3.setLocalTranslation(0, 0, (WorldCube.size) * WorldCube.width);
 		world.attachChild(geom);
 		world.attachChild(geom2);
 		world.attachChild(geom3);
-
+		
 		RigidBodyControl geom_phy = new RigidBodyControl(test.getCosShape(), 0.0f);
 		geom.addControl(geom_phy);
 		bulletAppState.getPhysicsSpace().add(geom_phy);
@@ -245,7 +246,7 @@ public class GameClient extends SimpleApplication implements ActionListener {
 					Vector3f hitGeom = closest.getGeometry().getLocalTranslation();
 					System.out.println("   x:" + hitGeom.x + "    y:" + hitGeom.y + "    z:" + hitGeom.z);
 					Vector3f bInd = hitLoc.subtract(hitGeom);
-					System.out.println("   x:" + Math.round(bInd.x) / 3 + "    y:" + Math.round(bInd.y) / 3 + "    z:" + Math.round(bInd.z) / 3);
+					System.out.println("   x:" + bInd.x / 3f + "    y:" + Math.round(bInd.y) + "    z:" + Math.round(bInd.z) );
 					rootNode.attachChild(mark);
 					Vector3f play = player.getPhysicsLocation();
 					System.out.println("Player - x:" + Math.round(play.getX()) + "   y:" + Math.round(play.getY()) + "   z:" + Math.round(play.getZ()));
