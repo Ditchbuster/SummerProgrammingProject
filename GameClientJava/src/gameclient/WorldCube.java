@@ -94,11 +94,40 @@ public class WorldCube extends AbstractControl{
 	public int getBlockType(int x, int y, int z) {
 		return blocks[x][y][z];
 	}
-	public static void getBlockInd(Vector3f hit) {
+	public void getBlockInd(Vector3f hit) {
+		int x,y,z;
+		boolean xbo,ybo,zbo; // if on border need more checks
 		float temp = hit.x-(int)hit.x;
-		if(temp<0.0001||temp>-0.0001){
-			System.out.println("Is boarder");
+		System.out.println(temp);
+		if(temp<0.0001&&temp>-0.0001){
+			System.out.println("x Is boarder");
+			xbo=true;
 		}
+		else{
+			xbo=false;
+			x=(int)hit.x;
+		}
+		temp=hit.y-(int)hit.y;
+		System.out.println(temp);
+		if(temp<0.0001&&temp>-0.0001){
+			System.out.println("y Is boarder");
+			ybo=true;
+		}
+		else{
+			ybo=false;
+			y=(int)hit.y;
+		}
+		temp=hit.z-(int)hit.z;
+		System.out.println(temp);
+		if(temp<0.0001&&temp>-0.0001){
+			System.out.println("z Is boarder");
+			zbo=true;
+		}
+		else{
+			zbo=false;
+			z=(int)hit.z;
+		}
+		
 	}
 
 	public void setType(int x, int y, int z, int type) {
