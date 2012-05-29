@@ -72,6 +72,18 @@ public class WorldCube extends AbstractControl{
 	CustomMesh myMesh = new CustomMesh(300);
 	CompoundCollisionShape geomShape = new CompoundCollisionShape();
 
+	class BlockIndex{ //for passing a blocks index around
+		public int x,y,z;
+	
+		public BlockIndex(){
+			x=y=z=0;
+		}
+		public BlockIndex(int x,int y,int z){
+			this.x=x;
+			this.y=y;
+			this.z=z;
+		}
+	}
 	private int[][][] blocks = new int[size][size][size];
 
 	public WorldCube(int type) {
@@ -94,7 +106,7 @@ public class WorldCube extends AbstractControl{
 	public int getBlockType(int x, int y, int z) {
 		return blocks[x][y][z];
 	}
-	public void getBlockInd(Vector3f hit) {
+	public BlockIndex getBlockInd(Vector3f hit) {
 		int x=0,y=0,z=0;
 		boolean xbo,ybo,zbo; // if on border need more checks
 		float temp =hit.x/width;
@@ -149,8 +161,14 @@ public class WorldCube extends AbstractControl{
 			}
 		}
 		System.out.println("X:"+x+"  Y:"+y+"  Z:"+z+" = blocks["+x+"]["+z+"]["+y+"]");
+		return(new BlockIndex(x,y,z));
 	}
-
+	public void removeBlock(Vector3f hitloc){
+		BlockIndex myIndex = getBlockInd(hitloc);
+		setType(myIndex.x,myIndex.y,myIndex.z,1); // for now set != 0
+		generateMesh();
+	}
+	
 	public void setType(int x, int y, int z, int type) {
 		blocks[x][y][z] = type;
 	}
@@ -377,7 +395,7 @@ public class WorldCube extends AbstractControl{
 	public Control cloneForSpatial(Spatial arg0) {
 		final Control myWC = new WorldCube();
 		// TODO Auto-generated method stub
-		return null;
+		return myWC;
 	}
 
 	@Override
@@ -387,8 +405,9 @@ public class WorldCube extends AbstractControl{
 	}
 
 	@Override
-	protected void controlUpdate(float arg0) {
-		// TODO Auto-generated method stub
-		
+	protected void controlUpdate(float tpf) {
+		if(spatial != null) {
+		      // spatial.rotate(tpf,tpf,tpf); // example behaviour
+		    }
 	}
 }
