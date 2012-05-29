@@ -95,9 +95,10 @@ public class WorldCube extends AbstractControl{
 		return blocks[x][y][z];
 	}
 	public void getBlockInd(Vector3f hit) {
-		int x,y,z;
+		int x=0,y=0,z=0;
 		boolean xbo,ybo,zbo; // if on border need more checks
-		float temp = hit.x-(int)hit.x;
+		float temp =hit.x/width;
+		temp=(temp-Math.round(temp));
 		System.out.println(temp);
 		if(temp<0.0001&&temp>-0.0001){
 			System.out.println("x Is boarder");
@@ -105,9 +106,9 @@ public class WorldCube extends AbstractControl{
 		}
 		else{
 			xbo=false;
-			x=(int)hit.x;
+			x=(int)hit.x/width;
 		}
-		temp=hit.y-(int)hit.y;
+		temp=(hit.y-Math.round(hit.y))/width;
 		System.out.println(temp);
 		if(temp<0.0001&&temp>-0.0001){
 			System.out.println("y Is boarder");
@@ -115,9 +116,9 @@ public class WorldCube extends AbstractControl{
 		}
 		else{
 			ybo=false;
-			y=(int)hit.y;
+			y=(int)hit.y/width;
 		}
-		temp=hit.z-(int)hit.z;
+		temp=(hit.z-Math.round(hit.z))/width;
 		System.out.println(temp);
 		if(temp<0.0001&&temp>-0.0001){
 			System.out.println("z Is boarder");
@@ -125,9 +126,29 @@ public class WorldCube extends AbstractControl{
 		}
 		else{
 			zbo=false;
-			z=(int)hit.z;
+			z=(int)hit.z/width;
 		}
 		
+		//check borders - y and z are swapped bc of different axis
+		if(xbo){
+			x=Math.round(hit.x)/width;
+			if(blocks[x][z][y]!=0){
+				x=x-1;
+			}
+		}
+		if(ybo){
+			y=Math.round(hit.y)/width;
+			if(blocks[x][z][y]!=0){
+				y=y-1;
+			}
+		}
+		if(zbo){
+			z=Math.round(hit.z)/width;
+			if(blocks[x][z][y]!=0){
+				z=z-1;
+			}
+		}
+		System.out.println("X:"+x+"  Y:"+y+"  Z:"+z+" = blocks["+x+"]["+z+"]["+y+"]");
 	}
 
 	public void setType(int x, int y, int z, int type) {
