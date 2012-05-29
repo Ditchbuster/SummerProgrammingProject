@@ -6,12 +6,18 @@ import com.jme3.bullet.collision.shapes.PlaneCollisionShape;
 import com.jme3.math.Plane;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.ViewPort;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Spatial;
+import com.jme3.scene.control.AbstractControl;
+import com.jme3.scene.control.Control;
 
 /**
  * @author Chris
  *         Describes a cube of the world. This will be a certain 3d cube of blocks
  */
-public class WorldCube {
+public class WorldCube extends AbstractControl{
 	public static final int size = 5; // size of the cube in blocks
 	public static final int width = 3; // world unit size of the block
 	private static final Vector3f[] vertices = new Vector3f[8];
@@ -77,12 +83,22 @@ public class WorldCube {
 			}
 		}
 	}
+	public WorldCube(){} // empty serialization constructor
+	
+	@Override
+	  public void setSpatial(Spatial spatial) { // init routine
+	    super.setSpatial(spatial);
+	    
+	  }
 
 	public int getBlockType(int x, int y, int z) {
 		return blocks[x][y][z];
 	}
-	public void getBlockInd(Vector3f hit) {
-		
+	public static void getBlockInd(Vector3f hit) {
+		float temp = hit.x-(int)hit.x;
+		if(temp<0.0001||temp>-0.0001){
+			System.out.println("Is boarder");
+		}
 	}
 
 	public void setType(int x, int y, int z, int type) {
@@ -305,5 +321,24 @@ public class WorldCube {
 
 	public void setCubeRht(WorldCube cubeRht) {
 		CubeRht = cubeRht;
+	}
+
+	@Override
+	public Control cloneForSpatial(Spatial arg0) {
+		final Control myWC = new WorldCube();
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected void controlRender(RenderManager arg0, ViewPort arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void controlUpdate(float arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 }

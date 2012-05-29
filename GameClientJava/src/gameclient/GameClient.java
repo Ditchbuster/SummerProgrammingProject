@@ -91,7 +91,7 @@ public class GameClient extends SimpleApplication implements ActionListener {
 		/** Set up Physics */
 		bulletAppState = new BulletAppState();
 		stateManager.attach(bulletAppState);
-		bulletAppState.getPhysicsSpace().enableDebug(assetManager);
+		//bulletAppState.getPhysicsSpace().enableDebug(assetManager);
 		viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
 		flyCam.setMoveSpeed(100);
 		setUpKeys();
@@ -166,6 +166,7 @@ public class GameClient extends SimpleApplication implements ActionListener {
 		test2.generateMesh();
 		test3.generateMesh();
 		Geometry geom = new Geometry("C0", test.getMesh());
+		geom.addControl(test);
 		Geometry geom2 = new Geometry("C1", test2.getMesh());
 		Geometry geom3 = new Geometry("C2", test3.getMesh());
 		Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
@@ -246,6 +247,7 @@ public class GameClient extends SimpleApplication implements ActionListener {
 					Vector3f hitGeom = closest.getGeometry().getLocalTranslation();
 					System.out.println("   x:" + hitGeom.x + "    y:" + hitGeom.y + "    z:" + hitGeom.z);
 					Vector3f bInd = hitLoc.subtract(hitGeom);
+					WorldCube.getBlockInd(bInd);
 					System.out.println("   x:" + bInd.x / 3f + "    y:" + Math.round(bInd.y) + "    z:" + Math.round(bInd.z) );
 					rootNode.attachChild(mark);
 					Vector3f play = player.getPhysicsLocation();
