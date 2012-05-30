@@ -6,12 +6,18 @@ import com.jme3.bullet.collision.shapes.PlaneCollisionShape;
 import com.jme3.math.Plane;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.ViewPort;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Spatial;
+import com.jme3.scene.control.AbstractControl;
+import com.jme3.scene.control.Control;
 
 /**
  * @author Chris
  *         Describes a cube of the world. This will be a certain 3d cube of blocks
  */
-public class WorldCube {
+public class WorldCube extends AbstractControl{
 	public static final int size = 5; // size of the cube in blocks
 	public static final int width = 3; // world unit size of the block
 	private static final Vector3f[] vertices = new Vector3f[8];
@@ -66,6 +72,18 @@ public class WorldCube {
 	CustomMesh myMesh = new CustomMesh(300);
 	CompoundCollisionShape geomShape = new CompoundCollisionShape();
 
+	class BlockIndex{ //for passing a blocks index around
+		public int x,y,z;
+	
+		public BlockIndex(){
+			x=y=z=0;
+		}
+		public BlockIndex(int x,int y,int z){
+			this.x=x;
+			this.y=y;
+			this.z=z;
+		}
+	}
 	private int[][][] blocks = new int[size][size][size];
 
 	public WorldCube(int type) {
@@ -77,14 +95,109 @@ public class WorldCube {
 			}
 		}
 	}
+	public WorldCube(){} // empty serialization constructor
+	
+	@Override
+	  public void setSpatial(Spatial spatial) { // init routine
+	    super.setSpatial(spatial);
+	    
+	  }
 
 	public int getBlockType(int x, int y, int z) {
 		return blocks[x][y][z];
 	}
-	public void getBlockInd(Vector3f hit) {
+	public BlockIndex getBlockInd(Vector3f hit) {
+		int x=0,y=0,z=0;
+		boolean xbo,ybo,zbo; // if on border need more checks
+		float temp =hit.x/width;
+		temp=(temp-Math.round(temp));
+		System.out.println(temp);
+		if(temp<0.0001&&temp>-0.0001){
+			System.out.println("x Is boarder");
+			xbo=true;
+		}
+		else{
+			xbo=false;
+			x=(int)hit.x/width;
+		}
+		temp=(hit.y-Math.round(hit.y))/width;
+		System.out.println(temp);
+		if(temp<0.0001&&temp>-0.0001){
+			System.out.println("y Is boarder");
+			ybo=true;
+		}
+		else{
+			ybo=false;
+			y=(int)hit.y/width;
+		}
+		temp=(hit.z-Math.round(hit.z))/width;
+		System.out.println(temp);
+		if(temp<0.0001&&temp>-0.0001){
+			System.out.println("z Is boarder");
+			zbo=true;
+		}
+		else{
+			zbo=false;
+			z=(int)hit.z/width;
+		}
+		
+		//check borders - y and z are swapped bc of different axis
+		if(xbo){
+			x=Math.round(hit.x)/width;
+			if(x>=size){
+				x=size-1;
+			}
+			if(blocks[x][z][y]!=0){
+				x=x-1;
+			}
+		}
+		if(ybo){
+			y=Math.round(hit.y)/width;
+			if(y>=size){
+				y=size-1;
+			}
+			if(blocks[x][z][y]!=0){
+				y=y-1;
+			}
+		}
+		if(zbo){
+			z=Math.round(hit.z)/width;
+			if(z>=size){
+				z=size-1;
+			}
+			if(blocks[x][z][y]!=0){
+				z=z-1;
+			}
+		}
+		System.out.println("X:"+x+"  Y:"+y+"  Z:"+z+" = blocks["+x+"]["+z+"]["+y+"]");
+		return(new BlockIndex(x,z,y)); // swapped because of different axis
+	}
+	public void removeBlock(Vector3f hitloc){
+		BlockIndex myIndex = getBlockInd(hitloc);
+		setType(myIndex.x,myIndex.y,myIndex.z,1); // for now set != 0
+		generateMesh();
+		//update other cubes if touching
+		if(myIndex.x==size-1&&CubeBck!=null){
+			CubeBck.generateMesh();
+		}
+		if(myIndex.y==size-1&&CubeRht!=null){
+			CubeRht.generateMesh();
+		}
+		if(myIndex.z==size-1&&CubeTop!=null){
+			CubeTop.generateMesh();
+		}
+		if(myIndex.x==0&&CubeFrt!=null){
+			CubeFrt.generateMesh();
+		}
+		if(myIndex.y==0&&CubeLft!=null){
+			CubeLft.generateMesh();
+		}
+		if(myIndex.z==0&&CubeBot!=null){
+			CubeBot.generateMesh();
+		}
 		
 	}
-
+	
 	public void setType(int x, int y, int z, int type) {
 		blocks[x][y][z] = type;
 	}
@@ -97,7 +210,8 @@ public class WorldCube {
 		return (geomShape);
 	}
 	public void generateMesh() {// TODO: bulk transfer the boundary chunks blocks, optimize physics (panels, only for areas around player)
-		myMesh.setDynamic();
+		//myMesh.setDynamic();
+		myMesh=new CustomMesh(300);
 		Vector3f box_size = new Vector3f(1.5f, 1.5f, 1.5f); // half size of box also used to offset box
 		int temptype = 0;
 		boolean addedFace = false;  // flag to see if it added a face for the block. if not dont add physics box
@@ -106,7 +220,7 @@ public class WorldCube {
 				for (int z = 0; z < size; z++) { // this z is up
 					if (blocks[x][y][z] == 0) {
 						addedFace=false;
-						System.out.println("Block: " + x + " " + y + " " + z);
+						//System.out.println("Block: " + x + " " + y + " " + z);
 						temptype = 1; // default is to draw
 						//geomShape.addChildShape(new BoxCollisionShape(box_size), box_size.add(x * width, z * width, y * width)); // adding physics shape - change to
 						// adding panels
@@ -229,7 +343,7 @@ public class WorldCube {
 								addedFace=true;
 							}
 						}
-						if(addedFace){
+						if(addedFace){ // if a face is visible also add in physics
 							geomShape.addChildShape(new BoxCollisionShape(box_size), box_size.add(x * width, z * width, y * width));
 						}
 					}
@@ -238,6 +352,7 @@ public class WorldCube {
 		}
 		myMesh.finish();
 		myMesh.setStatic();
+		
 
 	}
 	public void setDebugCube() { // create an alternating pattern
@@ -305,5 +420,25 @@ public class WorldCube {
 
 	public void setCubeRht(WorldCube cubeRht) {
 		CubeRht = cubeRht;
+	}
+
+	@Override
+	public Control cloneForSpatial(Spatial arg0) {
+		final Control myWC = new WorldCube();
+		// TODO Auto-generated method stub
+		return myWC;
+	}
+
+	@Override
+	protected void controlRender(RenderManager arg0, ViewPort arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void controlUpdate(float tpf) {
+		if(spatial != null) {
+		      // spatial.rotate(tpf,tpf,tpf); // example behaviour
+		    }
 	}
 }
