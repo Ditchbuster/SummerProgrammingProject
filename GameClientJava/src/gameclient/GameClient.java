@@ -91,7 +91,7 @@ public class GameClient extends SimpleApplication implements ActionListener {
 		/** Set up Physics */
 		bulletAppState = new BulletAppState();
 		stateManager.attach(bulletAppState);
-		bulletAppState.getPhysicsSpace().enableDebug(assetManager);
+		//bulletAppState.getPhysicsSpace().enableDebug(assetManager);
 		viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
 		flyCam.setMoveSpeed(100);
 		setUpKeys();
@@ -138,8 +138,9 @@ public class GameClient extends SimpleApplication implements ActionListener {
 		mat2.setTexture("ColorMap", tex_m2);
 		for (int i = 0; i < count; i++) {
 			for (int j = 0; j < count; j++) {
-			fl[i][j].generateMesh();	
+			fl[i][j].generateMesh();
 			Geometry geom = new Geometry("fl"+i+j, fl[i][j].getMesh());
+			geom.addControl(fl[i][j]);
 			geom.setMaterial(mat2);
 			geom.setLocalTranslation(i*(WorldCube.size)*WorldCube.width, 0, j*(WorldCube.size)*WorldCube.width);
 			floor.attachChild(geom);
@@ -166,6 +167,7 @@ public class GameClient extends SimpleApplication implements ActionListener {
 		test2.generateMesh();
 		test3.generateMesh();
 		Geometry geom = new Geometry("C0", test.getMesh());
+		geom.addControl(test);
 		Geometry geom2 = new Geometry("C1", test2.getMesh());
 		Geometry geom3 = new Geometry("C2", test3.getMesh());
 		Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
@@ -211,7 +213,7 @@ public class GameClient extends SimpleApplication implements ActionListener {
 
 	}
 	private void initMouse() {
-		inputManager.addMapping("Shoot", new MouseButtonTrigger(MouseInput.BUTTON_LEFT)); // trigger 2: left-button click
+		inputManager.addMapping("Shoot", new MouseButtonTrigger(MouseInput.BUTTON_LEFT),new KeyTrigger(KeyInput.KEY_RETURN)); // trigger 2: left-button click
 		inputManager.addListener(actionListener, "Shoot");
 	}
 	/** Defining the "Shoot" action: Determine what was hit and how to respond. */
@@ -242,14 +244,16 @@ public class GameClient extends SimpleApplication implements ActionListener {
 					// Let's interact - we mark the hit with a red dot.
 					mark.setLocalTranslation(closest.getContactPoint());
 					Vector3f hitLoc = closest.getContactPoint();
-					System.out.println("   x:" + hitLoc.x + "    y:" + hitLoc.y + "    z:" + hitLoc.z);
+					System.out.println("hl x:" + hitLoc.x + "    y:" + hitLoc.y + "    z:" + hitLoc.z);
 					Vector3f hitGeom = closest.getGeometry().getLocalTranslation();
-					System.out.println("   x:" + hitGeom.x + "    y:" + hitGeom.y + "    z:" + hitGeom.z);
+					System.out.println("WC x:" + hitGeom.x + "    y:" + hitGeom.y + "    z:" + hitGeom.z);
 					Vector3f bInd = hitLoc.subtract(hitGeom);
-					System.out.println("   x:" + bInd.x / 3f + "    y:" + Math.round(bInd.y) + "    z:" + Math.round(bInd.z) );
+					closest.getGeometry().getControl(WorldCube.class).removeBlock(bInd);
+					closest.getGeometry().setMesh(closest.getGeometry().getControl(WorldCube.class).getMesh());
+					System.out.println("I  x:" + bInd.x + "    y:" +(bInd.y) + "    z:" + bInd.z);
 					rootNode.attachChild(mark);
 					Vector3f play = player.getPhysicsLocation();
-					System.out.println("Player - x:" + Math.round(play.getX()) + "   y:" + Math.round(play.getY()) + "   z:" + Math.round(play.getZ()));
+					System.out.println("Player -> x:" + Math.round(play.getX()) + "   y:" + Math.round(play.getY()) + "   z:" + Math.round(play.getZ()));
 				} else {
 					// No hits? Then remove the red mark.
 					rootNode.detachChild(mark);
