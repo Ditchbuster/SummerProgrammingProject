@@ -248,7 +248,8 @@ public class GameClient extends SimpleApplication implements ActionListener {
 					Vector3f hitGeom = closest.getGeometry().getLocalTranslation();
 					System.out.println("WC x:" + hitGeom.x + "    y:" + hitGeom.y + "    z:" + hitGeom.z);
 					Vector3f bInd = hitLoc.subtract(hitGeom);
-					closest.getGeometry().getControl(WorldCube.class).getBlockInd(bInd);
+					closest.getGeometry().getControl(WorldCube.class).removeBlock(bInd);
+					closest.getGeometry().setMesh(closest.getGeometry().getControl(WorldCube.class).getMesh());
 					System.out.println("I  x:" + bInd.x + "    y:" +(bInd.y) + "    z:" + bInd.z);
 					rootNode.attachChild(mark);
 					Vector3f play = player.getPhysicsLocation();

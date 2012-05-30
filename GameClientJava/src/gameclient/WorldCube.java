@@ -144,29 +144,58 @@ public class WorldCube extends AbstractControl{
 		//check borders - y and z are swapped bc of different axis
 		if(xbo){
 			x=Math.round(hit.x)/width;
+			if(x>=size){
+				x=size-1;
+			}
 			if(blocks[x][z][y]!=0){
 				x=x-1;
 			}
 		}
 		if(ybo){
 			y=Math.round(hit.y)/width;
+			if(y>=size){
+				y=size-1;
+			}
 			if(blocks[x][z][y]!=0){
 				y=y-1;
 			}
 		}
 		if(zbo){
 			z=Math.round(hit.z)/width;
+			if(z>=size){
+				z=size-1;
+			}
 			if(blocks[x][z][y]!=0){
 				z=z-1;
 			}
 		}
 		System.out.println("X:"+x+"  Y:"+y+"  Z:"+z+" = blocks["+x+"]["+z+"]["+y+"]");
-		return(new BlockIndex(x,y,z));
+		return(new BlockIndex(x,z,y)); // swapped because of different axis
 	}
 	public void removeBlock(Vector3f hitloc){
 		BlockIndex myIndex = getBlockInd(hitloc);
 		setType(myIndex.x,myIndex.y,myIndex.z,1); // for now set != 0
 		generateMesh();
+		//update other cubes if touching
+		if(myIndex.x==size-1&&CubeBck!=null){
+			CubeBck.generateMesh();
+		}
+		if(myIndex.y==size-1&&CubeRht!=null){
+			CubeRht.generateMesh();
+		}
+		if(myIndex.z==size-1&&CubeTop!=null){
+			CubeTop.generateMesh();
+		}
+		if(myIndex.x==0&&CubeFrt!=null){
+			CubeFrt.generateMesh();
+		}
+		if(myIndex.y==0&&CubeLft!=null){
+			CubeLft.generateMesh();
+		}
+		if(myIndex.z==0&&CubeBot!=null){
+			CubeBot.generateMesh();
+		}
+		
 	}
 	
 	public void setType(int x, int y, int z, int type) {
@@ -181,7 +210,8 @@ public class WorldCube extends AbstractControl{
 		return (geomShape);
 	}
 	public void generateMesh() {// TODO: bulk transfer the boundary chunks blocks, optimize physics (panels, only for areas around player)
-		myMesh.setDynamic();
+		//myMesh.setDynamic();
+		myMesh=new CustomMesh(300);
 		Vector3f box_size = new Vector3f(1.5f, 1.5f, 1.5f); // half size of box also used to offset box
 		int temptype = 0;
 		boolean addedFace = false;  // flag to see if it added a face for the block. if not dont add physics box
@@ -190,7 +220,7 @@ public class WorldCube extends AbstractControl{
 				for (int z = 0; z < size; z++) { // this z is up
 					if (blocks[x][y][z] == 0) {
 						addedFace=false;
-						System.out.println("Block: " + x + " " + y + " " + z);
+						//System.out.println("Block: " + x + " " + y + " " + z);
 						temptype = 1; // default is to draw
 						//geomShape.addChildShape(new BoxCollisionShape(box_size), box_size.add(x * width, z * width, y * width)); // adding physics shape - change to
 						// adding panels
@@ -313,7 +343,7 @@ public class WorldCube extends AbstractControl{
 								addedFace=true;
 							}
 						}
-						if(addedFace){
+						if(addedFace){ // if a face is visible also add in physics
 							geomShape.addChildShape(new BoxCollisionShape(box_size), box_size.add(x * width, z * width, y * width));
 						}
 					}
@@ -322,6 +352,7 @@ public class WorldCube extends AbstractControl{
 		}
 		myMesh.finish();
 		myMesh.setStatic();
+		
 
 	}
 	public void setDebugCube() { // create an alternating pattern
