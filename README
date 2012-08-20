@@ -2,4 +2,4 @@
 README:Ditchbuster
 This is the start of a fun project for the summer which hopes to build a game that mixes some elements of minecraft and dwarf fortress
 
-Currently the game client needs the jMonkeyEngine to run. Instuctions are on the jME3 site for using in eclipse.
+Currently the game client needs the jMonkeyEngine to run. Instuctions are on the jME3 site for using in eclipse. http://jmonkeyengine.org/wiki/doku.php/jme3:setting_up_jme3_in_eclipse?s[]=eclipse
